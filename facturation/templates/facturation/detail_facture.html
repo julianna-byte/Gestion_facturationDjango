@@ -1,0 +1,170 @@
+{% extends 'facturation/base.html' %}
+
+{% block content %}
+
+<h2>Détail de la facture</h2>
+
+<div class="card p-3 mb-4">
+
+    <h4>Facture : {{ facture.numero }}</h4>
+
+    <p>
+        Client : {{ facture.client.nom }}
+    </p>
+
+    <p>
+        Téléphone : {{ facture.client.telephone }}
+    </p>
+
+    <p>
+        Date : {{ facture.date_creation }}
+    </p>
+
+    <p>
+        Échéance : {{ facture.date_echeance }}
+    </p>
+
+</div>
+
+
+<!-- Liste des produits facturés -->
+
+<h4>Produits facturés</h4>
+
+<table class="table table-bordered">
+
+    <thead>
+
+        <tr>
+
+            <th>Produit</th>
+
+            <th>Quantité</th>
+
+            <th>Prix unitaire</th>
+
+            <th>Montant HT</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for ligne in facture.lignes.all %}
+
+        <tr>
+
+            <td>{{ ligne.produit.nom }}</td>
+
+            <td>{{ ligne.quantite }}</td>
+
+            <td>{{ ligne.prix_unitaire }}</td>
+
+            <td>{{ ligne.montant_ht }}</td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="4">
+
+                Aucun produit dans cette facture.
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<!-- Formulaire d'ajout d'un produit -->
+
+<div class="card p-3 mb-4">
+
+    <h4>Ajouter un produit</h4>
+
+    <form method="POST"
+          action="{% url 'ajouter_ligne' facture.id %}">
+
+        {% csrf_token %}
+
+        {{ ligne_form.as_p }}
+
+        <button type="submit"
+                class="btn btn-primary">
+
+            Ajouter
+
+        </button>
+
+    </form>
+
+</div>
+
+
+<!-- Calculs financiers -->
+
+<div class="card p-3 mb-4">
+
+    <h4>Récapitulatif financier</h4>
+
+    <p>
+        Total HT :
+        {{ facture.total_ht }} FCFA
+    </p>
+
+    <p>
+        TVA ({{ facture.taux_tva }} %) :
+        {{ facture.montant_tva }} FCFA
+    </p>
+
+    <h5>
+        Total TTC :
+        {{ facture.total_ttc }} FCFA
+    </h5>
+
+    <p>
+        Total payé :
+        {{ facture.total_paye }} FCFA
+    </p>
+
+    <h5>
+        Reste à payer :
+        {{ facture.reste_a_payer }} FCFA
+    </h5>
+
+</div>
+
+
+<!-- Enregistrement d'un paiement -->
+
+<div class="card p-3 mb-4">
+
+    <h4>Enregistrer un paiement</h4>
+
+    <form method="POST"
+          action="{% url 'ajouter_paiement' facture.id %}">
+
+        {% csrf_token %}
+
+        {{ paiement_form.as_p }}
+
+        <button type="submit"
+                class="btn btn-success">
+
+            Enregistrer le paiement
+
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
